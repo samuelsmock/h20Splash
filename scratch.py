@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the main CSV file
-file_path_main = '/Volumes/NO NAME/Teilizahlen_FakRat (Kopie)/teil10Jahre.csv'  # Update with the correct path to your file
+file_path_main = '/Users/sunshinedaydream/Library/CloudStorage/GoogleDrive-smock.samuel@gmail.com/My Drive/h2oSplash/Measurements/SUBS_measurement_data_2024_06_25_0000_2024_06_25_2359_daily_export_3_SamMeasurements.h5'  # Update with the correct path to your file
 df_main = pd.read_csv(file_path_main)
 
 # Load the additional CSV file
