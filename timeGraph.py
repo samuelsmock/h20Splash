@@ -5,11 +5,21 @@ from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 import numpy as np
 import CoolProp.CoolProp as CP
+import re
+
 
 # Open the HDF5 file
-file_path = ''
+file_path = 'G:\My Drive\h2oSplash\Measurements\SUBS_measurement_data_2024_06_11_0000_2024_06_11_2359_daily_export_3_SamMeasurements.h5'
 
-variables_to_plot = ['t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
+# Extract date from the file name using regular expression
+date_match = re.search(r'(\d{4})_(\d{2})_(\d{2})', file_path)
+if date_match:
+    date_str = f"{date_match.group(3)}.{date_match.group(2)}.{date_match.group(1)}"  # Convert to dd.mm.yyyy format
+else:
+    date_str = "Unknown Date"
+
+
+variables_to_plot = ['V_0Ex_1','t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
 tubeArea = 7.9  # m2
 
 # Function to calculate specific latent heat of vaporization
@@ -59,7 +69,7 @@ units = {
 data['LMTD'] = ((data['t_0Ei'] - data['T_ERa']) - (data['t_0Eo'] - data['T_ERa'])) / np.log((data['t_0Ei'] - data['T_ERa']) / (data['t_0Eo'] - data['T_ERa']))
 data['HeatTranCoeff'] = data['Q_0Ex_1'] / (data['LMTD'] * tubeArea)
 data['dmrich/dt'] = 1000 * data['V_AWo'] / 3600
-data['dmsump/dt'] = 1000 * data['V_ERi'] / 3600  # l/hr -> kg/s
+data['dmsump/dt'] = 1000 * data['V_ERi'] / 3600  # l/hr -> g/s
 data['dmref1/dt'] = data['dmrich/dt'] * (1 - ((data['T_HWo'] - data['T_HWi']) / (data['T_HSi'] - data['T_HSo'])))
 data['delhe'] = data['p_EVo'].apply(lambda p: latent_heat_vaporization(p)/1000)
 data['delhs'] = data['delhe'] * ((((data['t_2Do_1'] + 273) * (data['t_1Ai'] - data['t_0Ei'])) \
@@ -74,7 +84,7 @@ data['Pool Depth (cm)'] = data['p_ERs_1_rel'] / 0.981
 data['COP'] = data['Q_0Ex_1']/data['Q_2Dx_1']
 
 # Add derived variables to the list
-variables_to_plot.extend(['LMTD', 'HeatTranCoeff', 'dmrich/dt', 'dmsump/dt', 'dmref1/dt', 'f', 'ReTop', 'ReBottom'])
+variables_to_plot.extend(['LMTD', 'HeatTranCoeff', 'dmrich/dt', 'dmsump/dt', 'dmref2/dt', 'f', 'ReTop', 'ReBottom'])
 variables_to_plot.extend(['Pool Depth (cm)', 'delhe', 'delhs', 'satTemp'])
 units['Pool Depth (cm)'] = 'cm'
 
@@ -106,10 +116,22 @@ for var_name in variables_to_plot:
         var_name_display = f"{var_name} ({units.get(var_name, '')})"
     
     fig.add_trace(go.Scatter(x=data['time'], y=data[var_name], mode='lines', name=var_name_display))
+# Create a list of checkboxes for each variable
+buttons = []
+for i, var_name in enumerate(variables_to_plot):
+    buttons.append(
+        dict(
+            method='restyle',
+            label=var_name,
+            args=[{'visible': [False] * len(variables_to_plot)}, [i]],
+            args2=[{'visible': True}, [i]],
+        
+        )
+    )
 
 # Update the layout
 fig.update_layout(
-    title='Variable Comparison Over Time',
+    title=f'Test stand Variables: {date_str}',
     xaxis_title='Time',
     yaxis_title='Values',
     xaxis=dict(
@@ -125,7 +147,17 @@ fig.update_layout(
         xanchor='right',
         x=1
     ),
-    hovermode='x unified'
+    hovermode='x unified',
+    updatemenus=[dict(
+        active=0,
+        buttons=buttons,
+        direction='down',
+        showactive=True,
+        x=1.15,
+        xanchor='right',
+        y=1.15,
+        yanchor='top'
+    )]
 )
 
 # Show the plot
