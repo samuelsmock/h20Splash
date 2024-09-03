@@ -7,7 +7,7 @@ import numpy as np
 import CoolProp.CoolProp as CP
 
 # Open the HDF5 file
-file_path = '/Users/sunshinedaydream/Library/CloudStorage/GoogleDrive-smock.samuel@gmail.com/My Drive/h2oSplash/Measurements/SUBS_measurement_data_2024_06_25_0000_2024_06_25_2359_daily_export_3_SamMeasurements.h5'
+file_path = ''
 
 variables_to_plot = ['t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
 tubeArea = 7.9  # m2
