@@ -1,3 +1,8 @@
+#simply graphs some of the most imporatnt variables for a day, onlz while the machine is running 
+# as defined by Q_0Ex_1 > 10
+
+# Opens in a browswer, and you can turn off a variable in the graph by clicking on it at the top
+# 
 import h5py
 import pandas as pd
 import plotly.graph_objs as go
@@ -9,7 +14,7 @@ import re
 
 
 # Open the HDF5 file
-file_path = 'G:\My Drive\h2oSplash\Measurements\SUBS_measurement_data_2024_06_11_0000_2024_06_11_2359_daily_export_3_SamMeasurements.h5'
+file_path = 'G:\My Drive\h2oSplash\Measurements\SUBS_measurement_data_2024_02_14_0000_2024_02_14_2359_daily_export_1_AbduFulful_Versuche.h5'
 
 # Extract date from the file name using regular expression
 date_match = re.search(r'(\d{4})_(\d{2})_(\d{2})', file_path)
