@@ -49,7 +49,8 @@ def rowHeatTransferAsDict(heatProfile, pyscada, transformFunction = None):
     # if we want to apply a transormation on the IR temeratures do it now
     # this could be for instance innerTempEstimatorFromMaterials()
     if(transformFunction):
-        heatProfile = heatProfile.applymap(lambda cell: transformFunction(cell))
+        heatProfile = heatProfile.map(lambda cell: transformFunction(cell))
+
     #first get a list of the times at which a heat photo was taken
     datetime_columns = [col for col in heatProfile.columns if isinstance(col, pd.Timestamp)]
     rowPixelDist = int(len(heatProfile)/6)

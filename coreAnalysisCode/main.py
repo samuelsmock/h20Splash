@@ -7,7 +7,7 @@ import numpy as np
 import os
 import pprint as pp
 from datetime import timedelta
-from helperFunctions import innerTempEstimatorFromKnowns, preProcessProfile, preProcessPyscada, calculate_lmtd
+from helperFunctions import innerTempEstimatorFromKnowns, preProcessProfile, preProcessPyscada, calculate_lmtd, innerTempFromHandWaving
 from heatTransferMultiXLS import rowHeatTransferAsDict
 
 # Paths
@@ -15,7 +15,7 @@ heatProfile_folder = "G:/My Drive/h2oSplash/Messdaten/Wärmekamera/xlsProfiles"
 pyscada_folder = "G:/My Drive/h2oSplash/Measurements"
 
 # Output folder
-output_folder = "G:/My Drive/h2oSplash/IRCamera/Analysis_By_Row_Picture_SS"
+output_folder = "C:/Users/Admin/Documents/python/h20Splash/results/heatTransferByRow"
 temperature_samples_folder = "G:/My Drive/h2oSplash/IRCamera/1D_temperature_samples_SS"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
@@ -47,7 +47,7 @@ for heatProfile_file in os.listdir(heatProfile_folder):
         pyscada = preProcessPyscada(pyscada_path, heatProfile_path, timeAdjustPyscada)
 
         # Calculate heat transfer coefficients and save results THIS IS WHERE TO PUT THE TRANFORM FUNCTION
-        output = rowHeatTransferAsDict(heatProfile, pyscada)
+        output = rowHeatTransferAsDict(heatProfile, pyscada, innerTempFromHandWaving)
         
         # make another directory with samples only
         output_samples_only = {}

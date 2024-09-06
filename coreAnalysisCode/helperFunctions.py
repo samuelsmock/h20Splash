@@ -21,7 +21,7 @@ from scipy.optimize import fsolve
 # thickness ratio is less than one if we assume the materials are the the same but the reference material is thinner
 # As an example, our elbow is about 4mm thick galvanized steel, the plate is about 9mm thick, so the second argument would be 4/9
 def innerTempEstimatorFromKnowns(T_IR):
-    knownOutletPairs = [[16.2, 15.15]]
+    knownOutletPairs = [[16.7, 16.1], [21.5, 21.2]] # must be manually looked up using timeGraph and Irbis (accounting for time difference)
     thicknessRatio= 4/9
     thicknessElbow = 0.04
     #convert to kelvin
@@ -53,6 +53,7 @@ def innerTempEstimatorFromKnowns(T_IR):
 # the idea of this function is to estimate temperatures based on values for emissivity, convective heat transfer coefficient,
 # and thermal conductivity from the literature, this needs considerable work to get sensical answers 
 def innerTempEstimatorFromMaterials(T_IR):
+
     thermalConductivityWperMK = 50
     thicknessM = 0.009
     #convert to kelvin
@@ -71,6 +72,45 @@ def innerTempEstimatorFromMaterials(T_IR):
 
     # Solve and return the result in celsius
     return fsolve(heat_balance, T_0EoGuess)[0] - 273.15
+
+# simply a totally adhoc way of getting
+def innerTempFromHandWaving(T_IR):
+    T_IR = T_IR +273
+    T_IR_1, T_h20_1 = 16.8 +273.1, 15.4+273.1  # First known point
+    T_IR_2, T_h20_2 = 21.7+273.1, 20.1+273.1  # Second known point
+    # T_IR = a * y^4 + y + b
+    # Rearrange to solve for y
+    # a * y^4 + y + b - T_IR = 0
+    # This is a nonlinear equation that needs to be solved numerically
+
+    def find_a_b(T_IR_1, T_h20_1, T_IR_2, T_h20_2):
+        # Set up the system of linear equations
+        # T_IR_1 = a * T_h20_1^4 + T_h20_1 + b
+        # T_IR_2 = a * T_h20_2^4 + T_h20_2 + b
+        
+        # Coefficients matrix for the system [ [T_h20_1^4, 1], [T_h20_2^4, 1] ]
+        A = np.array([[T_h20_1**4, 1], [T_h20_2**4, 1]])
+        
+        # Right-hand side vector [T_IR_1 - T_h20_1, T_IR_2 - T_h20_2]
+        B = np.array([T_IR_1 - T_h20_1, T_IR_2 - T_h20_2])
+        
+        # Solve for a and b
+        a, b = np.linalg.solve(A, B)
+        
+        return a, b
+
+    a, b = find_a_b(T_IR_1, T_h20_1, T_IR_2, T_h20_2)
+
+    def equation(y):
+        return a * y**4 + y + b - T_IR
+    
+    # Use fsolve to find y for the given T_IR
+    T_h20_initial_guess = 283  # A reasonable initial guess
+    T_h20_solution = fsolve(equation,  T_h20_initial_guess)
+    
+    return T_h20_solution[0] -273
+
+
 
 def calculate_lmtd(temp_in_hot, temp_out_hot, temp_in_cold, temp_out_cold):
     """
@@ -186,4 +226,5 @@ def preProcessPyscada(df_path, heatProfile_path, timeAdjust):
     return data             
 
 print('estimate based on calibration:', innerTempEstimatorFromKnowns(16.2),
-      'estimate based on materials:', innerTempEstimatorFromMaterials(16.2)) 
+      'estimate based on materials:', innerTempEstimatorFromMaterials(16.2),
+      'estimate based on hand waving', innerTempFromHandWaving(16.6)) 

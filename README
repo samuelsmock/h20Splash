@@ -1,12 +1,21 @@
 This Repo is primarily here for the analysis of data from a 50Kw LiBR Absorbtions Chiller
 
-The scripts deal either with internally sampled data in .h5 format (Usually reffered to as Pyscada data)
+The scripts deal either with internally sampled data in .h5 format (usually reffered to as Pyscada data)
 or Thermographic data from an infrared camera, sometimes synthesiying the two.
 
-the coreAnalysisCode folder contains a constellation of helper functions, a program to calculate heat transfer quantities, and a principal main.py file that can run analysis on large filesets quickly. The core functionality of this main.py and its imports is to synthesize internal and external data to estimate heat transfer rate and heat transfer coefficient accross the rows of the evaporator. Additional work needs to be done to include radiative, conductive, and convective effects in transforming externally measured IR values with internal working fluid temperatures.
+the coreAnalysisCode folder contains a constellation of helper functions, a program to calculate heat transfer quantities, and a principal main.py 
+file that can run analysis on large filesets quickly. The core functionality of this main.py and its imports is to synthesize internal and external 
+data to estimate heat transfer rate and heat transfer coefficient accross the rows of the evaporator. Additional work needs to be done to include 
+radiative, conductive, and convective effects in transforming externally measured IR values with internal working fluid temperatures.
 
-Other useful functions are timeGraph.py which simply calculates some basic macro quantities such as average Heat Transfer Coefficient accross the evaporator and others, and graphs it over time in a browser window. The user can then select which variables to show by selecting or deselecting them at the top.
+Other useful functions are timeGraph.py which simply calculates some basic macro quantities such as average Heat Transfer Coefficient accross the 
+evaporator and others, and graphs it over time in a browser window. The user can then select which variables to show by selecting or deselecting them at the top.
 
 showH5.py simply shows what variables are contained in Pyscada outputs for easy reference
 
-variableXYgraph.py is a (still inprogress) script which allows the user to take samples of values calculated in timeGraph.py in the time domain of select XY pairs for scatter or line plots. An example of this would be recirculation rate vs average Heat Transfer Coefficient, or any other combination one could think of.
+variableXYgraph.py is a (still inprogress) script which allows the user to take samples of values calculated in timeGraph.py 
+in the time domain of select XY pairs for scatter or line plots. An example of this would be recirculation rate vs average Heat 
+Transfer Coefficient, or any other combination one could think of.
+
+In helperFunctions three functions, innerTempEstimatorFromKnowns(T_IR), innerTempEstimatorFromMaterials(T_IR), and innerTempFromHandWaving(T_IR)
+can be found. these atttempt to calculate inside water temperature from the IR camera measurement and will eventually be a major task to get accurate results
