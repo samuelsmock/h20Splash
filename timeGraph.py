@@ -14,7 +14,7 @@ import re
 
 
 # Open the HDF5 file
-file_path = 'G:\My Drive\h2oSplash\Measurements\SUBS_measurement_data_2024_02_14_0000_2024_02_14_2359_daily_export_1_AbduFulful_Versuche.h5'
+file_path = 'G:/My Drive/h2oSplash/Measurements/SUBS_measurement_data_2024_08_29_0000_2024_08_29_2359_daily_export_3_SamMeasurements.h5'
 
 # Extract date from the file name using regular expression
 date_match = re.search(r'(\d{4})_(\d{2})_(\d{2})', file_path)
@@ -23,8 +23,9 @@ if date_match:
 else:
     date_str = "Unknown Date"
 
+otherVariables = ['V_0Ex_1','t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
 
-variables_to_plot = ['V_0Ex_1','t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
+externalTemperatureVairables = ['t_0Ei', 't_0Eo', 't_1Ai', 't_1Co', 't_2Di', 't_2Do_1']
 tubeArea = 7.9  # m2
 
 # Function to calculate specific latent heat of vaporization
@@ -89,8 +90,8 @@ data['Pool Depth (cm)'] = data['p_ERs_1_rel'] / 0.981
 data['COP'] = data['Q_0Ex_1']/data['Q_2Dx_1']
 
 # Add derived variables to the list
-variables_to_plot.extend(['LMTD', 'HeatTranCoeff', 'dmrich/dt', 'dmsump/dt', 'dmref2/dt', 'f', 'ReTop', 'ReBottom'])
-variables_to_plot.extend(['Pool Depth (cm)', 'delhe', 'delhs', 'satTemp'])
+otherVariables.extend(['LMTD', 'HeatTranCoeff', 'dmrich/dt', 'dmsump/dt', 'dmref2/dt', 'f', 'ReTop', 'ReBottom'])
+otherVariables.extend(['Pool Depth (cm)', 'delhe', 'delhs', 'satTemp'])
 units['Pool Depth (cm)'] = 'cm'
 
 # Round numerical values to 2 decimal places
@@ -100,8 +101,10 @@ data = data[data['Q_0Ex_1'] > 10]
 # Create the plotly figure
 fig = make_subplots()
 
+variablesToPlot = otherVariables
+
 # Add traces for each variable to plot
-for var_name in variables_to_plot:
+for var_name in variablesToPlot:
     # Apply formatting for variables starting with 'd' and ending with '/dt'
     if var_name.startswith('d') and var_name.endswith('/dt'):
         base_name = var_name[1:-3]  # Strip leading 'd' and trailing '/dt'
@@ -123,12 +126,12 @@ for var_name in variables_to_plot:
     fig.add_trace(go.Scatter(x=data['time'], y=data[var_name], mode='lines', name=var_name_display))
 # Create a list of checkboxes for each variable
 buttons = []
-for i, var_name in enumerate(variables_to_plot):
+for i, var_name in enumerate(variablesToPlot):
     buttons.append(
         dict(
             method='restyle',
             label=var_name,
-            args=[{'visible': [False] * len(variables_to_plot)}, [i]],
+            args=[{'visible': [False] * len(otherVariables)}, [i]],
             args2=[{'visible': True}, [i]],
         
         )

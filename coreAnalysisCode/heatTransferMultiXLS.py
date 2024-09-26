@@ -162,7 +162,7 @@ output = rowHeatTransferAsDict(heatProfile, pyscada)
 output_file_name = os.path.splitext(os.path.basename(heatProfile_path))[0] + ".txt"
 
 # Specify the folder where you want to save the file
-folder = "G:\My Drive\h2oSplash\IRCamera\Analysis_By_Row_Picture_SS"
+folder = "G:\My Drive\h2oSplash\IRCamera\Analysis_By_Row_Picture_SS\handWave[16.28,15.28],[21.53,21.37]]"
 
 # Ensure the folder exists
 if not os.path.exists(folder):

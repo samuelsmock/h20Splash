@@ -4,6 +4,7 @@
 # .h5 files from Pyscada and code to take a Infrared reading and estimate the temperature on the other side of the plate
 # using known internal/external pairs or the physical properties of the materials
 
+# Change actual calibration values within the functions!!!!
 
 import h5py
 import pandas as pd
@@ -76,8 +77,8 @@ def innerTempEstimatorFromMaterials(T_IR):
 # simply a totally adhoc way of getting
 def innerTempFromHandWaving(T_IR):
     T_IR = T_IR +273
-    T_IR_1, T_h20_1 = 16.8 +273.1, 15.4+273.1  # First known point
-    T_IR_2, T_h20_2 = 21.7+273.1, 20.1+273.1  # Second known point
+    T_IR_1, T_h20_1 = 16.3 +273.1, 15.3+273.1  # First known point
+    T_IR_2, T_h20_2 = 21.2+273.1, 21.2+273.1  # Second known point
     # T_IR = a * y^4 + y + b
     # Rearrange to solve for y
     # a * y^4 + y + b - T_IR = 0
@@ -227,4 +228,4 @@ def preProcessPyscada(df_path, heatProfile_path, timeAdjust):
 
 print('estimate based on calibration:', innerTempEstimatorFromKnowns(16.2),
       'estimate based on materials:', innerTempEstimatorFromMaterials(16.2),
-      'estimate based on hand waving', innerTempFromHandWaving(16.6)) 
+      'estimate based on hand waving', innerTempFromHandWaving(16.3)) 

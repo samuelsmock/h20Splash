@@ -4,9 +4,16 @@ import plotly.graph_objs as go
 from datetime import datetime, timedelta
 import numpy as np
 import CoolProp.CoolProp as CP
+import re
 
 # Open the HDF5 file
-file_path = '/Users/sunshinedaydream/Library/CloudStorage/GoogleDrive-smock.samuel@gmail.com/My Drive/h2oSplash/Measurements/SUBS_measurement_data_2024_06_25_0000_2024_06_25_2359_daily_export_3_SamMeasurements.h5'
+file_path = 'G:/My Drive/h2oSplash/Measurements/SUBS_measurement_data_2024_08_29_0000_2024_08_29_2359_daily_export_3_SamMeasurements.h5'
+
+date_match = re.search(r'(\d{4})_(\d{2})_(\d{2})', file_path)
+if date_match:
+    date_str = f"{date_match.group(3)}.{date_match.group(2)}.{date_match.group(1)}"  # Convert to dd.mm.yyyy format
+else:
+    date_str = "Unknown Date"
 
 variables_to_plot = ['t_0Ei', 't_0Eo', 'T_ERa', 'Q_0Ex_1', 'p_ERs_1_rel', 'D_PWn1', 'p_EVo']
 tubeArea = 7.9  # m2
@@ -42,7 +49,7 @@ units = {
     'Q_0Ex_1': 'kW',
     'p_ERs_1_rel': 'mbar',
     'LMTD': '°C',
-    'HeatTranCoeff': 'kW/m²K',
+    'AvgHeatTranCoeff': 'kW/m²K',
     'dmrich/dt': 'g/s',
     'dmsump/dt': 'g/s',
     'dmref1/dt': 'g/s',
@@ -56,7 +63,7 @@ units = {
 
 # Calculate derived quantities
 data['LMTD'] = ((data['t_0Ei'] - data['T_ERa']) - (data['t_0Eo'] - data['T_ERa'])) / np.log((data['t_0Ei'] - data['T_ERa']) / (data['t_0Eo'] - data['T_ERa']))
-data['HeatTranCoeff'] = data['Q_0Ex_1'] / (data['LMTD'] * tubeArea)
+data['AvgHeatTranCoeff'] = data['Q_0Ex_1'] / (data['LMTD'] * tubeArea)
 data['dmrich/dt'] = 1000 * data['V_AWo'] / 3600
 data['dmsump/dt'] = 1000 * data['V_ERi'] / 3600  # l/hr -> kg/s
 data['dmref1/dt'] = data['dmrich/dt'] * (1 - ((data['T_HWo'] - data['T_HWi']) / (data['T_HSi'] - data['T_HSo'])))
@@ -84,7 +91,7 @@ data = data[data['Q_0Ex_1'] > 10]
 
 # Define variables for scatter plot
 x_var = 'dmsump/dt'  # Choose the x-axis variable
-y_var = 'HeatTranCoeff'  # Choose the y-axis variable
+y_var = 'AvgHeatTranCoeff'  # Choose the y-axis variable
 
 # Sample data every 10 minutes
 def sample_every_n_minutes(df, x_column, y_column, interval_minutes=10):
@@ -104,9 +111,13 @@ def sample_every_n_minutes(df, x_column, y_column, interval_minutes=10):
 interval_minutes = 10  # Interval in minutes
 sampled_data = sample_every_n_minutes(data, x_var, y_var, interval_minutes)
 
+# Fit a linear regression line
+slope, intercept = np.polyfit(sampled_data[x_var], sampled_data[y_var], 1)
+
 # Create the scatter plot
 fig = go.Figure()
 
+# Add scatter plot points
 fig.add_trace(go.Scatter(
     x=sampled_data[x_var],
     y=sampled_data[y_var],
@@ -115,9 +126,17 @@ fig.add_trace(go.Scatter(
     marker=dict(size=8, color='blue', opacity=0.6)
 ))
 
+# Add linear best-fit line
+fig.add_trace(go.Scatter(
+    x=sampled_data[x_var],
+    y=slope * sampled_data[x_var] + intercept,
+    mode='lines',
+    line=dict(color='red')
+))
+
 # Update the layout
 fig.update_layout(
-    title=f'Scatter Plot of {x_var} vs {y_var}',
+    title=f' {x_var} vs {y_var} sample date {date_str}',
     xaxis_title=f'{x_var} ({units.get(x_var, "")})',
     yaxis_title=f'{y_var} ({units.get(y_var, "")})',
     hovermode='closest'
